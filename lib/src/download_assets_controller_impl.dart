@@ -193,7 +193,7 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
       int chunkIndex = 0;
       for (var match in matches) {
         String chunkUrl = match.group(0).toString();
-        String chunkFileName = '$chunkFile\_$chunkIndex\.ts';
+        String chunkFileName = '${chunkFile}_$chunkIndex.ts';
         String chunkPath = '$_assetsDir/$chunkFileName';
         await customHttpClient.download(chunkUrl, chunkPath);
         m3u8Content = m3u8Content.replaceFirst(chunkUrl, chunkFileName);
