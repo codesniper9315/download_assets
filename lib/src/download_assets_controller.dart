@@ -54,4 +54,17 @@ abstract class DownloadAssetsController {
     Function(double)? onProgress,
     String downloadFile = 'download',
   });
+
+  /// Start download HLS stream files to local storage
+  /// uncompressed file.
+  /// [playlistUrl] Specify the .m3u8 url
+  /// [onProgress] It is optional. Called after each iteration returning the current progress
+  /// [masterFile] master file's name (default value is playlist.m3u8)
+  /// [chunkFile] chunk file's name without extension (default value is chunk.ts)
+  Future downloadStreamFiles({
+    required String playlistUrl,
+    Function(double)? onProgress,
+    String masterFile = 'playlist.m3u8',
+    String chunkFile = 'chunk',
+  });
 }
