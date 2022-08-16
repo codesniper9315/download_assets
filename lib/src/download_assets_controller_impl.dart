@@ -189,6 +189,7 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
       var m3u8File = fileManager.createFile(masterPath);
       var m3u8Content = m3u8File.readAsStringSync();
       List<RegExpMatch> matches = regExp.allMatches(m3u8Content).toList();
+
       int chunkIndex = 0;
       for (var match in matches) {
         String chunkUrl = match.group(0).toString();
@@ -196,6 +197,7 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
         String chunkPath = '$_assetsDir/$chunkFileName';
         await customHttpClient.download(chunkUrl, chunkPath);
         m3u8Content = m3u8Content.replaceFirst(chunkUrl, chunkFileName);
+        chunkIndex++;
       }
       m3u8File.writeAsStringSync(m3u8Content);
     } on Exception catch (e) {
