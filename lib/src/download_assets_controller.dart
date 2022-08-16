@@ -4,7 +4,8 @@ import 'package:download_assets/src/managers/http/custom_http_client_impl.dart';
 import 'download_assets_controller_impl.dart';
 
 abstract class DownloadAssetsController {
-  factory DownloadAssetsController({String directory = 'assets'}) => createObject(
+  factory DownloadAssetsController({String directory = 'assets'}) =>
+      createObject(
         fileManager: FileManagerImpl(),
         customHttpClient: CustomHttpClientImpl(),
       );
@@ -41,5 +42,16 @@ abstract class DownloadAssetsController {
     required String assetsUrl,
     Function(double)? onProgress,
     String zippedFile = 'assets.zip',
+  });
+
+  /// Start download file to local storage
+  /// uncompressed file.
+  /// [assetsUrl] Specify the url of your file. (https://example.com/myfile.ext)
+  /// [onProgress] It is optional. Called after each iteration returning the current progress
+  /// [downloadFile] download file's name (default value is download)
+  Future downloadFile({
+    required String assetsUrl,
+    Function(double)? onProgress,
+    String downloadFile = 'download',
   });
 }

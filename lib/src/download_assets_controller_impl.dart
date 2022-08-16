@@ -41,13 +41,15 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
 
   @override
   Future<bool> assetsDirAlreadyExists() async {
-    assert(assetsDir != null, "DownloadAssets has not been initialized. Call init method first");
+    assert(assetsDir != null,
+        "DownloadAssets has not been initialized. Call init method first");
     return await fileManager.directoryExists(_assetsDir!);
   }
 
   @override
   Future<bool> assetsFileExists(String file) async {
-    assert(assetsDir != null, "DownloadAssets has not been initialized. Call init method first");
+    assert(assetsDir != null,
+        "DownloadAssets has not been initialized. Call init method first");
     return await fileManager.fileExists('$_assetsDir/$file');
   }
 
@@ -68,7 +70,8 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
     Function(double)? onProgress,
     String zippedFile = 'assets.zip',
   }) async {
-    assert(assetsDir != null, "DownloadAssets has not been initialized. Call init method first");
+    assert(assetsDir != null,
+        "DownloadAssets has not been initialized. Call init method first");
     assert(assetsUrl.isNotEmpty, "AssetUrl param can't be empty");
 
     try {
@@ -112,6 +115,42 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
       if (totalProgress != 100) {
         onProgress?.call(100);
       }
+    } on Exception catch (e) {
+      throw DownloadAssetsException(
+        e.toString(),
+        exception: e,
+      );
+    }
+  }
+
+  @override
+  Future downloadFile({
+    required String assetsUrl,
+    Function(double)? onProgress,
+    String downloadFile = 'download',
+  }) async {
+    assert(assetsDir != null,
+        "DownloadAssets has not been initialized. Call init method first");
+    assert(assetsUrl.isNotEmpty, "AssetUrl param can't be empty");
+
+    try {
+      await fileManager.createDirectory(_assetsDir!);
+      String fullPath = '$_assetsDir/$downloadFile';
+      double totalProgress = 0;
+      onProgress?.call(totalProgress);
+
+      await customHttpClient.download(
+        assetsUrl,
+        fullPath,
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            double progress = (received / total * 100);
+            totalProgress = progress - (progress * 0.2);
+          }
+
+          onProgress?.call(totalProgress <= 0 ? 0 : totalProgress);
+        },
+      );
     } on Exception catch (e) {
       throw DownloadAssetsException(
         e.toString(),
