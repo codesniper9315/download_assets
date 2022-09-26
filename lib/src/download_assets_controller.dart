@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:download_assets/src/managers/file/file_manager_impl.dart';
 import 'package:download_assets/src/managers/http/custom_http_client_impl.dart';
 
@@ -68,7 +70,7 @@ abstract class DownloadAssetsController {
     String chunkFile = 'chunk',
   });
 
-  Future downloadStreamFirstChunk({
+  Future<File> downloadStreamFirstChunk({
     required String playlistUrl,
     Function(double)? onProgress,
     String masterFile = 'playlist.m3u8',
