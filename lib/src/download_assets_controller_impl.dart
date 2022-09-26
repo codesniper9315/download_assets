@@ -244,6 +244,8 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
         String chunkFileName = '${chunkFile}_0.ts';
         String chunkPath = '$_assetsDir/$chunkFileName';
         await customHttpClient.download(chunkUrl, chunkPath);
+
+        m3u8File.deleteSync();
       } else {
         throw DownloadAssetsException(
           'Master file contains invalid chunks',
