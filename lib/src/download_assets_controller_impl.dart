@@ -207,4 +207,54 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
       );
     }
   }
+
+  @override
+  Future downloadStreamFirstChunk({
+    required String playlistUrl,
+    Function(double)? onProgress,
+    String masterFile = 'playlist.m3u8',
+    String chunkFile = 'chunk',
+  }) async {
+    assert(assetsDir != null,
+        "DownloadAssets has not been initialized. Call init method first");
+    assert(playlistUrl.isNotEmpty, "playlistUrl param can't be empty");
+
+    RegExp regExp = RegExp(
+      r'^(http|https):\/\/([\w.]+\/?)\S*',
+      caseSensitive: false,
+      multiLine: true,
+    );
+
+    try {
+      await fileManager.createDirectory(_assetsDir!);
+      String masterPath = '$_assetsDir/$masterFile';
+      double totalProgress = 0;
+      onProgress?.call(totalProgress);
+
+      if (await fileManager.fileExists(masterPath)) return;
+
+      await customHttpClient.download(playlistUrl, masterPath);
+
+      var m3u8File = fileManager.createFile(masterPath);
+      var m3u8Content = m3u8File.readAsStringSync();
+      List<RegExpMatch> matches = regExp.allMatches(m3u8Content).toList();
+
+      if (matches.isNotEmpty) {
+        String chunkUrl = matches.first.group(0).toString();
+        String chunkFileName = '${chunkFile}_0.ts';
+        String chunkPath = '$_assetsDir/$chunkFileName';
+        await customHttpClient.download(chunkUrl, chunkPath);
+      } else {
+        throw DownloadAssetsException(
+          'Master file contains invalid chunks',
+          exception: Exception('Master file contains invalid chunks'),
+        );
+      }
+    } on Exception catch (e) {
+      throw DownloadAssetsException(
+        e.toString(),
+        exception: e,
+      );
+    }
+  }
 }

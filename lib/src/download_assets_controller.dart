@@ -67,4 +67,11 @@ abstract class DownloadAssetsController {
     String masterFile = 'playlist.m3u8',
     String chunkFile = 'chunk',
   });
+
+  Future downloadStreamFirstChunk({
+    required String playlistUrl,
+    Function(double)? onProgress,
+    String masterFile = 'playlist.m3u8',
+    String chunkFile = 'chunk',
+  });
 }
