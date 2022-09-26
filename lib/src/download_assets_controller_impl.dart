@@ -228,10 +228,11 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
     try {
       await fileManager.createDirectory(_assetsDir!);
       String masterPath = '$_assetsDir/$masterFile';
+      String chunkPath = '$_assetsDir/$chunkFile';
       double totalProgress = 0;
       onProgress?.call(totalProgress);
 
-      if (await fileManager.fileExists(masterPath)) return;
+      if (await fileManager.fileExists(chunkPath)) return;
 
       await customHttpClient.download(playlistUrl, masterPath);
 
