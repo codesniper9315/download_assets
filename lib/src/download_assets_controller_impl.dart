@@ -241,8 +241,7 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
 
       if (matches.isNotEmpty) {
         String chunkUrl = matches.first.group(0).toString();
-        String chunkFileName = '${chunkFile}_0.ts';
-        String chunkPath = '$_assetsDir/$chunkFileName';
+        String chunkPath = '$_assetsDir/$chunkFile';
         await customHttpClient.download(chunkUrl, chunkPath);
 
         m3u8File.deleteSync();
