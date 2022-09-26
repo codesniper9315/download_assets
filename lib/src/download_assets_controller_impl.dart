@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:download_assets/src/download_assets_controller.dart';
 import 'package:download_assets/src/exceptions/download_assets_exception.dart';
 import 'package:download_assets/src/managers/file/file_manager.dart';
 import 'package:download_assets/src/managers/http/custom_http_client.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 DownloadAssetsController createObject({
   required FileManager fileManager,
@@ -209,11 +212,11 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
   }
 
   @override
-  Future downloadStreamFirstChunk({
+  Future<File> downloadStreamFirstChunk({
     required String playlistUrl,
     Function(double)? onProgress,
     String masterFile = 'playlist.m3u8',
-    String chunkFile = 'chunk',
+    String chunkFile = 'chunk.ts',
   }) async {
     assert(assetsDir != null,
         "DownloadAssets has not been initialized. Call init method first");
@@ -226,13 +229,15 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
     );
 
     try {
+      var fileInfo = await DefaultCacheManager().getFileFromCache(chunkFile);
+      if (fileInfo != null) {
+        return fileInfo.file;
+      }
+
       await fileManager.createDirectory(_assetsDir!);
       String masterPath = '$_assetsDir/$masterFile';
-      String chunkPath = '$_assetsDir/$chunkFile';
       double totalProgress = 0;
       onProgress?.call(totalProgress);
-
-      if (await fileManager.fileExists(chunkPath)) return;
 
       await customHttpClient.download(playlistUrl, masterPath);
 
@@ -242,10 +247,15 @@ class DownloadAssetsControllerImpl implements DownloadAssetsController {
 
       if (matches.isNotEmpty) {
         String chunkUrl = matches.first.group(0).toString();
-        String chunkPath = '$_assetsDir/$chunkFile';
-        await customHttpClient.download(chunkUrl, chunkPath);
+        File file = (await DefaultCacheManager().downloadFile(
+          chunkUrl,
+          key: chunkFile,
+        ))
+            .file;
 
         m3u8File.deleteSync();
+
+        return file;
       } else {
         throw DownloadAssetsException(
           'Master file contains invalid chunks',
